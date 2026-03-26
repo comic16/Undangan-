@@ -19,11 +19,15 @@ body {
   overflow-y: scroll;
   overflow-x: hidden;
   overscroll-behavior: none;
+  body.no-scroll {
+  overflow: hidden;
+}
 }
 
 .section {
   width: 100%;
   height: 100vh;
+  height: 100dvh;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   will-change: transform;
@@ -495,8 +499,8 @@ flex-direction:column;
     border-radius:20px;
     ">Kirim</button>
   </div>
-
   </div>
+</div>
 <div id="notif" style="
 position:fixed;
 top:20px;
@@ -509,13 +513,14 @@ border-radius:20px;
 font-size:14px;
 opacity:0;
 transition:0.3s;
-z-index:9999;
+z-index:10000;
 pointer-events:none;
 ">
   Isi nama kamu dulu
 </div>
 
 <script>
+  document.body.classList.add("no-scroll")
 const API_URL = "https://script.google.com/macros/s/AKfycbzHjy6GHPP4HfJr_fbO587eykL7bigXev2Jp4uVyzue0_nRt-OJAEr3DhH5QOd3pTruDA/exec"
 
 // ELEMENT
@@ -539,10 +544,14 @@ let liked = false
 let count = null
 
 // ================= LOGIN =================
-const urlParams = new URLSearchParams(window.location.search)
-const namaDariLink = urlParams.get('to')
+window.addEventListener("DOMContentLoaded", () => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const namaDariLink = urlParams.get('to')
 
-if(namaDariLink) namaLogin.value = namaDariLink
+  if(namaDariLink){
+    namaLogin.value = decodeURIComponent(namaDariLink)
+  }
+})
 
 const savedNama = localStorage.getItem("namaTamu")
 if(savedNama) namaLogin.value = savedNama
@@ -555,7 +564,7 @@ function masukUndangan(){
   if(!namaVal) return showNotif("Isi nama kamu dulu")
 
   localStorage.setItem("namaTamu", namaVal)
-
+document.body.classList.remove("no-scroll")
   loginPage.style.display = "none"
   nama.innerText = namaVal
   namaClone.innerText = namaVal
