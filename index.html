@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Undangan Hendri & Rahima</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif}
+
+html {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: auto;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  overscroll-behavior: none;
+}
+
+.section {
+  width: 100%;
+  height: 100vh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  will-change: transform;
+  background-size:cover;
+  background-position:center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  text-align:center;
+  color:white;
+
+  /* 🔥 TAMBAH INI */
+  position: relative;
+
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* MENU */
+.menu{
+  position:fixed;
+  right:10px;
+
+  /* 🔥 PINDAH KE BAWAH */
+  bottom:5%;   /* ubah ini kalau mau lebih turun/naik */
+
+  top:auto;      /* matikan posisi atas */
+  transform:none;
+
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+  z-index:99;
+}
+
+.btn{
+  width:55px;
+  height:55px;
+  border-radius:50%;
+  background:#fff;
+  color:#000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.love.active{color:red}
+.rotate{animation:spin 3s linear infinite}
+
+@keyframes spin{
+  from{transform:rotate(0)}
+  to{transform:rotate(360deg)}
+}
+
+.namaBox{
+  position:absolute;
+  bottom:30px; /* 🔥 lebih turun */
+  right:auto;
+  left:20px;
+  transform:none;
+
+  background:rgba(0,0,0,0.5);
+  padding:15px 20px;
+  border-radius:10px;
+  max-width:180px;
+  display:inline-block;
+}
+
+  /* 🔥 BALIKIN KOTAK */
+  background:rgba(0,0,0,0.5);
+
+  padding:15px 20px;
+  border-radius:10px;
+  max-width:300px;
+  width: 80%;
+
+  /* 🔥 Biar selalu kelihatan */
+  display:inline-block;
+}
+
+.namaBox h3{
+  font-size:12px; /* kecil */
+}
+
+.namaBox h1{
+  font-size:16px; /* nama tamu */
+  line-height:1.2;
+}
+.loveBubble{
+  position:fixed;
+  pointer-events:none;
+  z-index:1000;
+  opacity:0;
+  animation:loveFloat 2.5s ease-out forwards;
+}
+
+@keyframes loveFloat{
+  0%{
+    transform:translate(0,0) scale(0.5);
+    opacity:0;
+  }
+  20%{
+    opacity:1;
+  }
+  100%{
+    transform:translate(var(--x), var(--y)) scale(1.3);
+    opacity:0;
+  }
+}
+.logoBtn{
+  width:100%;
+  height:100%;
+  border-radius:50%;
+  object-fit:cover;
+}
+.cdItem{
+  background:rgba(0,0,0,0.5);
+  padding:10px;
+  border-radius:10px;
+  min-width:65px;
+  text-align:center;
+}
+
+.cdItem span{
+  font-size:20px;
+  font-weight:bold;
+  display:block;
+}
+
+.cdItem small{
+  font-size:12px;
+  opacity:0.8;
+}
+.btnDana{
+  position:absolute;
+  left:20%;
+  top:43%; /* 🔥 posisi tombol DANA */
+  transform:translateX(-50%);
+  
+  padding:6px 10px;
+  font-size:12px;
+  border:none;
+  border-radius:6px;
+  background:white;
+    z-index:10;
+}
+
+.btnJago{
+  position:absolute;
+  left:20%;
+  top:75%; /* 🔥 posisi tombol JAGO */
+  transform:translateX(-50%);
+  
+  padding:6px 10px;
+  font-size:12px;
+  border:none;
+  border-radius:6px;
+  background:white;
+    z-index:10;
+}
+.lokasiSection{
+  position:relative;
+}
+
+.btnLokasi{
+  position:absolute;
+  bottom:30px; /* 🔥 pindah ke bawah */
+  left:50%;
+  transform:translateX(-50%);
+
+  padding:12px 20px;
+  border:none;
+  border-radius:25px;
+  background:#0b3d91;
+  color:#fff;
+  font-weight:bold;
+  font-size:14px;
+
+  z-index:10;
+}
+.emoji{
+  font-size:22px;
+  cursor:pointer;
+  padding:5px;
+  border-radius:8px;
+  transition:0.2s;
+}
+
+.emoji:active{
+  transform:scale(1.3);
+}
+
+.template{
+  background:#eee;
+  padding:6px 10px;
+  border-radius:15px;
+  font-size:12px;
+  cursor:pointer;
+  white-space:nowrap;
+  transition:0.2s;
+}
+
+.template:active{
+  background:#ddd;
+  transform:scale(0.95);
+}
+</style>
+</head>
+
+<body>
+  
+  <div id="loveEffect" style="
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%) scale(0);
+font-size:100px;
+color:red;
+pointer-events:none;
+z-index:1000;
+opacity:0;
+">
+  ❤️
+</div>
+
+<div id="loginPage" style="
+position:fixed;
+top:0;left:0;
+width:100%;height:100%;
+background:url('login.jpg') center/cover no-repeat;
+display:flex;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+z-index:9999;
+">
+
+  <input id="namaLogin" placeholder="Masukkan Nama Anda" style="
+  padding:12px;
+  border-radius:20px;
+  border:none;
+  width:70%;
+  max-width:250px;
+  text-align:center;
+  margin-bottom:15px;
+  ">
+
+  <button onclick="masukUndangan()" style="
+  padding:12px 20px;
+  border:none;
+  border-radius:20px;
+  background:#0b3d91;
+  color:#fff;
+  font-weight:bold;
+  ">
+    Buka Undangan
+  </button>
+
+</div>
+
+<audio id="music" src="musik.mp3" loop playsinline></audio>
+
+<div id="overlayPlay" style="
+position:fixed;
+top:0;left:0;
+width:100%;height:100%;
+display:flex;
+align-items:center;
+justify-content:center;
+background:rgba(0,0,0,0.3);
+z-index:999;
+opacity:0;
+pointer-events:none;
+transition:0.3s;
+">
+  <div style="
+    width:80px;
+    height:80px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.7);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:30px;
+    color:black;
+  ">▶</div>
+</div>
+<!-- CLONE ATAS -->
+<div class="section lokasiSection" style="background-image:url('5.jpg')">
+
+  <button class="btnLokasi"
+    onclick="window.open('https://maps.app.goo.gl/zKtMkQ4UsDQQNHkS8')">
+    📍 Buka Lokasi
+  </button>
+
+</div>
+
+<!-- HALAMAN ASLI -->
+<div class="section" style="background-image:url('1.jpg')">
+  <div class="namaBox">
+    <h3>Kepada Yth</h3>
+    <h1 id="nama"></h1>
+  </div>
+</div>
+
+<div class="section" id="lovePage" style="background-image:url('2.jpg')"></div>
+
+<div class="section" style="background-image:url('3.jpg')">
+  <div style="
+    position:absolute;
+    bottom:40px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    gap:10px;
+  " id="countdownBox">
+
+    <div class="cdItem">
+      <span id="hari">0</span>
+      <small>Hari</small>
+    </div>
+
+    <div class="cdItem">
+      <span id="jam">0</span>
+      <small>Jam</small>
+    </div>
+
+    <div class="cdItem">
+      <span id="menit">0</span>
+      <small>Menit</small>
+    </div>
+
+    <div class="cdItem">
+      <span id="detik">0</span>
+      <small>Detik</small>
+    </div>
+
+  </div>
+</div>
+
+<div class="section" style="background-image:url('4.jpg'); position:relative;">
+
+  <!-- DANA -->
+  <button class="btnDana" onclick="copyText('081998155294')">
+    Salin DANA
+  </button>
+
+  <!-- JAGO -->
+  <button class="btnJago" onclick="copyText('106820583551')">
+    Salin JAGO
+  </button>
+
+</div>
+
+<div class="section lokasiSection" style="background-image:url('5.jpg')">
+
+  <button class="btnLokasi"
+    onclick="window.open('https://maps.app.goo.gl/zKtMkQ4UsDQQNHkS8')">
+    📍 Buka Lokasi
+  </button>
+
+</div>
+
+<!-- CLONE BAWAH -->
+<div class="section" style="background-image:url('1.jpg')">
+  <div class="namaBox">
+    <h3>Kepada Yth</h3>
+    <h1 id="namaClone"></h1>
+  </div>
+</div>
+
+<!-- MENU -->
+<div class="menu">
+  <div class="btn">
+  <img src="logo.jpg" class="logoBtn">
+</div>
+  <div class="btn love" id="likeBtn">❤<span id="likeCount">0</span></div>
+  <div class="btn" onclick="openComment()">💬<span id="commentCount">0</span></div>
+  <div class="btn" onclick="shareWA()">🟢</div>
+  <div class="btn" id="musicBtn">🎵</div>
+</div>
+
+<div id="commentBox" style="
+position:fixed;
+bottom:-100%;
+left:0;
+width:100%;
+height:70%;
+background:#fff;
+color:#000;
+border-top-left-radius:20px;
+border-top-right-radius:20px;
+transition:0.4s ease;
+z-index:999;
+display:flex;
+flex-direction:column;
+">
+
+  <!-- HEADER -->
+  <div style="
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px;
+  border-bottom:1px solid #eee;
+  font-weight:bold;
+  ">
+    <span>💌 Kirim Ucapan & Doa</span>
+    <span onclick="closeComment()" style="font-size:20px;cursor:pointer">✕</span>
+  </div>
+
+  <!-- LIST KOMENTAR -->
+  <div id="list" style="
+  flex:1;
+  overflow-y:auto;
+  padding:10px;
+  "></div>
+
+  <!-- INPUT -->
+  <div style="padding:10px; border-top:1px solid #eee;">
+
+  <!-- TEMPLATE UCAPAN -->
+  <div id="templateBox" style="
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    margin-bottom:8px;
+  ">
+    <div class="template">Selamat yaa ❤️</div>
+    <div class="template">Semoga sakinah mawaddah warahmah 🤲</div>
+    <div class="template">Barakallah ❤️</div>
+    <div class="template">Happy wedding 🎉</div>
+    <div class="template">Semoga bahagia selalu 💐</div>
+  </div>
+
+  <!-- EMOJI -->
+  <div id="emojiBox" style="
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    margin-bottom:8px;
+  ">
+    <span class="emoji">❤️</span>
+    <span class="emoji">😍</span>
+    <span class="emoji">🥰</span>
+    <span class="emoji">😘</span>
+    <span class="emoji">🎉</span>
+    <span class="emoji">💐</span>
+    <span class="emoji">🤲</span>
+    <span class="emoji">😊</span>
+    <span class="emoji">🔥</span>
+  </div>
+
+  <!-- INPUT -->
+  <div style="display:flex; gap:10px;">
+    <input id="commentInput" placeholder="Tulis ucapan..." style="
+    flex:1;
+    padding:10px;
+    border-radius:20px;
+    border:1px solid #ccc;
+    outline:none;
+    ">
+    <button onclick="sendComment()" style="
+    padding:10px 15px;
+    border:none;
+    background:black;
+    color:white;
+    border-radius:20px;
+    ">Kirim</button>
+  </div>
+
+  </div>
+<div id="notif" style="
+position:fixed;
+top:20px;
+left:50%;
+transform:translateX(-50%) translateY(-20px);
+background:rgba(13,71,161,0.85);
+color:#fff;
+padding:12px 20px;
+border-radius:20px;
+font-size:14px;
+opacity:0;
+transition:0.3s;
+z-index:9999;
+pointer-events:none;
+">
+  Isi nama kamu dulu
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbzHjy6GHPP4HfJr_fbO587eykL7bigXev2Jp4uVyzue0_nRt-OJAEr3DhH5QOd3pTruDA/exec"
+
+// ELEMENT
+const commentCount = document.getElementById("commentCount")
+const likeBtn = document.getElementById("likeBtn")
+const likeCount = document.getElementById("likeCount")
+const commentInput = document.getElementById("commentInput")
+const list = document.getElementById("list")
+const commentBox = document.getElementById("commentBox")
+const music = document.getElementById("music")
+const musicBtn = document.getElementById("musicBtn")
+const loginPage = document.getElementById("loginPage")
+const namaLogin = document.getElementById("namaLogin")
+const nama = document.getElementById("nama")
+const namaClone = document.getElementById("namaClone")
+const countdown = document.getElementById("countdown")
+
+// STATUS
+let sudahMasuk = false
+let liked = false
+let count = null
+
+// ================= LOGIN =================
+const urlParams = new URLSearchParams(window.location.search)
+const namaDariLink = urlParams.get('to')
+
+if(namaDariLink) namaLogin.value = namaDariLink
+
+const savedNama = localStorage.getItem("namaTamu")
+if(savedNama) namaLogin.value = savedNama
+
+nama.innerText = "Tamu Undangan"
+namaClone.innerText = "Tamu Undangan"
+
+function masukUndangan(){
+  const namaVal = namaLogin.value.trim()
+  if(!namaVal) return showNotif("Isi nama kamu dulu")
+
+  localStorage.setItem("namaTamu", namaVal)
+
+  loginPage.style.display = "none"
+  nama.innerText = namaVal
+  namaClone.innerText = namaVal
+  sudahMasuk = true
+
+  setTimeout(()=>{
+    window.scrollTo({ top: window.innerHeight, behavior: "instant" })
+  },50)
+
+  music.volume = 0
+  music.play().then(()=>{
+    let v=0
+    const fade=setInterval(()=>{
+      v+=0.05
+      if(v>=1){v=1;clearInterval(fade)}
+      music.volume=v
+    },100)
+  })
+}
+
+// ================= COUNTDOWN =================
+const target = new Date('April 19, 2026 00:00:00').getTime()
+
+const elHari = document.getElementById("hari")
+const elJam = document.getElementById("jam")
+const elMenit = document.getElementById("menit")
+const elDetik = document.getElementById("detik")
+
+setInterval(()=>{
+  const now = new Date().getTime()
+  const gap = target - now
+
+  if(gap <= 0){
+    document.getElementById("countdownBox").innerHTML = "Hari Bahagia Telah Tiba ❤️"
+    return
+  }
+
+  const hari = Math.floor(gap / (1000 * 60 * 60 * 24))
+  const jam = Math.floor((gap / (1000 * 60 * 60)) % 24)
+  const menit = Math.floor((gap / (1000 * 60)) % 60)
+  const detik = Math.floor((gap / 1000) % 60)
+
+  elHari.innerText = hari
+  elJam.innerText = jam
+  elMenit.innerText = menit
+  elDetik.innerText = detik
+
+},1000)
+
+// ================= LOVE EFFECT =================
+function spawnLoveBubble(){
+  const el=document.createElement("div")
+  el.innerText="❤️"
+  el.className="loveBubble"
+
+  el.style.left=Math.random()*window.innerWidth+"px"
+  el.style.top=Math.random()*window.innerHeight+"px"
+
+  const moveX=(Math.random()-0.5)*200
+  const moveY=(Math.random()-0.5)*200
+
+  el.style.setProperty('--x',moveX+'px')
+  el.style.setProperty('--y',moveY+'px')
+
+  el.style.fontSize=(Math.random()*25+15)+"px"
+
+  document.body.appendChild(el)
+  setTimeout(()=>el.remove(),2500)
+}
+
+// ================= LOAD LIKE =================
+function loadLike(){
+  fetch(API_URL+"?type=getLike")
+  .then(res=>res.json())
+  .then(data=>{
+    count = Number(data.like) || 0
+    likeCount.innerText = count
+  })
+}
+
+// 🔥 LANGSUNG LOAD (INI YANG BIKIN CEPAT)
+loadLike()
+
+// ================= LIKE =================
+likeBtn.onclick=()=>{
+  if(count === null){
+    loadLike()
+    return
+  }
+
+  liked = !liked
+  const value = liked ? 1 : -1
+
+  count += value
+  likeCount.innerText = count
+
+  if(liked){
+    likeBtn.classList.add('active')
+    for(let i=0;i<20;i++){
+      setTimeout(()=>spawnLoveBubble(), i*50)
+    }
+  }else{
+    likeBtn.classList.remove('active')
+  }
+
+  fetch(API_URL,{
+    method:"POST",
+    body:new URLSearchParams({
+      type:"like",
+      value:value
+    })
+  }).then(()=>loadLike())
+}
+
+// ================= KOMENTAR =================
+function sendComment(){
+  const pesan = commentInput.value.trim()
+  if(!pesan) return
+
+  const namaUser = nama.innerText
+
+  const d=document.createElement('div')
+  d.style.padding="10px"
+  d.style.borderBottom="1px solid #eee"
+
+  d.innerHTML = `
+    <b>${namaUser}</b>
+    <div>${pesan}</div>
+  `
+
+  list.prepend(d)
+
+  fetch(API_URL,{
+    method:"POST",
+    body: new URLSearchParams({
+      type:"komentar",
+      nama:namaUser,
+      pesan:pesan
+    })
+  })
+
+  commentInput.value=""
+}
+
+// ================= LOAD KOMENTAR =================
+let lastTotal = 0
+
+function loadKomentar(){
+  fetch(API_URL+"?type=getKomentar&t="+Date.now())
+  .then(res=>res.json())
+  .then(data=>{
+
+    // 🔥 kalau jumlah sama → jangan update
+    if(data.length === lastTotal) return
+
+    lastTotal = data.length
+
+    // 🔥 baru update kalau ada perubahan
+    list.innerHTML = ""
+    commentCount.innerText = data.length
+
+    data.reverse().forEach(item=>{
+      const d=document.createElement('div')
+      d.style.padding="10px"
+      d.style.borderBottom="1px solid #eee"
+
+      d.innerHTML = `
+        <b>${item[0]}</b>
+        <div>${item[1]}</div>
+      `
+
+      list.appendChild(d)
+    })
+  })
+}
+
+loadKomentar()
+
+setInterval(()=>{
+  loadKomentar()
+},5000)
+
+// ================= UI =================
+function openComment(){
+  commentBox.style.bottom="0"
+
+  // 🔥 tambah history (biar bisa back)
+  history.pushState({comment:true}, "")
+}
+function closeComment(){
+  commentBox.style.bottom="-100%"
+
+  // 🔥 balik history (opsional biar rapi)
+  if(history.state && history.state.comment){
+    history.back()
+  }
+}
+// 🔥 BACK BUTTON SUPPORT
+window.addEventListener("popstate", function () {
+  if(commentBox.style.bottom === "0px"){
+    closeComment()
+  }
+})
+function shareWA(){
+  const namaUser = nama.innerText
+
+  const link = window.location.origin + window.location.pathname + "?to=" + encodeURIComponent(namaUser)
+
+  const pesan = `Assalamu'alaikum 🙏
+
+Kami mengundang Anda untuk hadir di acara pernikahan kami:
+
+💍 Hendri & Rahima
+
+Berikut link undangannya:
+${link}
+
+Merupakan suatu kehormatan bagi kami jika Anda berkenan hadir ❤️`
+
+  const url = "https://wa.me/?text=" + encodeURIComponent(pesan)
+
+  window.open(url, "_blank")
+}
+
+// MUSIC TAP
+document.body.addEventListener('click',(e)=>{
+  if(!sudahMasuk) return
+  if(e.target.closest('.btn')||e.target.closest('button')) return
+  music.paused ? music.play() : music.pause()
+})
+
+musicBtn.onclick=()=>{
+  if(!sudahMasuk) return
+  music.paused ? music.play() : music.pause()
+}
+
+// OVERLAY
+const overlay=document.getElementById('overlayPlay')
+
+function updateOverlay(){
+  overlay.style.opacity = music.paused ? '1':'0'
+}
+
+music.onplay=()=>{
+  musicBtn.classList.add('rotate')
+  updateOverlay()
+}
+
+music.onpause=()=>{
+  musicBtn.classList.remove('rotate')
+  updateOverlay()
+}
+
+updateOverlay()
+
+// SCROLL LOOP
+const sections=document.querySelectorAll('.section')
+const total=sections.length
+let isJumping=false
+
+window.addEventListener('scroll',()=>{
+  if(isJumping)return
+  const y=Math.round(window.scrollY)
+  const h=window.innerHeight
+
+  if(y>=(total-1)*h-2)jumpTo(h)
+  if(y<=2)jumpTo((total-2)*h)
+})
+
+function jumpTo(pos){
+  isJumping=true
+  document.documentElement.style.scrollSnapType="none"
+  window.scrollTo({top:pos,behavior:"instant"})
+  requestAnimationFrame(()=>{
+    document.documentElement.style.scrollSnapType="y mandatory"
+    isJumping=false
+  })
+}
+// 🔥 JAGA MUSIK SAAT KEYBOARD MUNCUL
+function paksaPlay(){
+  if(sudahMasuk && music.paused){
+    music.play().catch(()=>{})
+  }
+}
+
+// saat fokus input
+document.addEventListener("focusin", paksaPlay)
+
+// saat klik input
+document.addEventListener("click", (e)=>{
+  if(e.target.tagName === "INPUT"){
+    setTimeout(paksaPlay, 200)
+  }
+})
+
+// saat resize (keyboard muncul)
+window.addEventListener("resize", ()=>{
+  setTimeout(paksaPlay, 300)
+})
+
+// saat kembali ke halaman
+document.addEventListener("visibilitychange", ()=>{
+  if(document.visibilityState === "visible"){
+    paksaPlay()
+  }
+})
+function showNotif(text){
+  const notif = document.getElementById("notif")
+  notif.innerText = text
+
+  notif.style.opacity = "1"
+  notif.style.transform = "translateX(-50%) translateY(0)"
+
+  setTimeout(()=>{
+    notif.style.opacity = "0"
+    notif.style.transform = "translateX(-50%) translateY(-20px)"
+  },2000)
+}
+function copyText(text){
+  navigator.clipboard.writeText(text).then(()=>{
+    showNotif("Berhasil disalin: " + text)
+  }).catch(()=>{
+    showNotif("Gagal menyalin")
+  })
+}
+// klik emoji
+document.addEventListener("click", function(e){
+  if(e.target.classList.contains("emoji")){
+    commentInput.value += e.target.innerText + " "
+    commentInput.focus()
+  }
+
+  // klik template
+  if(e.target.classList.contains("template")){
+    commentInput.value = e.target.innerText + " "
+    commentInput.focus()
+  }
+})
+</script>
+
+</body>
+</html>
