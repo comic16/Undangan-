@@ -642,24 +642,44 @@ function spawnLoveBubble(){
 }
 
 // ================= LOAD LIKE =================
+let lastLikeTotal = 0
+let lastUserLiked = null
+
 function loadLike(){
   fetch(API_URL+"?type=getLike&t="+Date.now())
   .then(res=>res.json())
   .then(data=>{
-    likeCount.innerText = data.total || 0
 
-    if(data.users && data.users.includes(userId)){
+    const total = data.total || 0
+    const users = data.users || []
+    const isLikedServer = users.includes(userId)
+
+    // 🔥 kalau TIDAK ADA PERUBAHAN → stop
+    if(total === lastLikeTotal && isLikedServer === lastUserLiked){
+      return
+    }
+
+    // 🔥 simpan state terakhir
+    lastLikeTotal = total
+    lastUserLiked = isLikedServer
+
+    // 🔥 update UI
+    likeCount.innerText = total
+
+    if(isLikedServer){
       liked = true
       likeBtn.classList.add("active")
     }else{
       liked = false
       likeBtn.classList.remove("active")
     }
+
   })
 }
 
 // 🔥 LANGSUNG LOAD (INI YANG BIKIN CEPAT)
 loadLike()
+setInterval(loadLike, 4000)
 
 // ================= LIKE =================
 likeBtn.onclick=()=>{
@@ -671,7 +691,6 @@ likeBtn.onclick=()=>{
     likeBtn.classList.add('active')
     likeCount.innerText = current + 1
 
-    // ❤️ ANIMASI LOVE
     for(let i=0;i<15;i++){
       setTimeout(()=>spawnLoveBubble(), i*60)
     }
@@ -681,6 +700,10 @@ likeBtn.onclick=()=>{
     likeCount.innerText = current - 1
   }
 
+  // 🔥 simpan state (ANTI KEDIP)
+  lastLikeTotal = Number(likeCount.innerText)
+  lastUserLiked = liked
+
   fetch(API_URL,{
     method:"POST",
     headers:{
@@ -688,9 +711,6 @@ likeBtn.onclick=()=>{
     },
     body:`type=setLike&userId=${userId}&value=${liked ? 1 : 0}`
   })
-
-  // 🔥 sync ulang biar akurat
-  setTimeout(loadLike, 1000)
 }
 
 // ================= KOMENTAR =================
@@ -756,11 +776,7 @@ function loadKomentar(){
 }
 
 loadKomentar()
-
-setInterval(()=>{
-  loadLike()
-  loadKomentar()
-},2000)
+setInterval(loadKomentar, 2000)
 
 // ================= UI =================
 function openComment(){
