@@ -655,9 +655,9 @@ function spawnLoveBubble(){
 let isSendingLike = false
 let lastLikeTotal = 0
 let lastUserLiked = null
-
+let firstLoadLike = true
 function loadLike(){
-  if(isSendingLike) return // 🔥 biar tidak tabrakan saat klik
+  if(isSendingLike) return
 
   fetch(API_URL+"?type=getLike&t="+Date.now())
   .then(res=>res.json())
@@ -667,12 +667,17 @@ function loadLike(){
     const users = data.users || []
     const isLikedServer = users.includes(userId)
 
-    // 🔥 kalau jumlah sama → jangan update
-    if(total === lastLikeTotal) return
+    // 🔥 WAJIB jalan di awal
+    if(!firstLoadLike){
+  if(total === lastLikeTotal && isLikedServer === lastUserLiked){
+    return
+  }
+}
 
-    lastLikeTotal = total
+    firstLoadLike = false
+lastLikeTotal = total
+lastUserLiked = isLikedServer
 
-    // 🔥 update UI
     likeCount.innerText = total
 
     if(isLikedServer){
@@ -682,11 +687,8 @@ function loadLike(){
       liked = false
       likeBtn.classList.remove("active")
     }
-
   })
 }
-loadLike()
-setInterval(loadLike, 4000)
 // ================= LIKE =================
 likeBtn.onclick=()=>{
   liked = !liked
@@ -718,6 +720,10 @@ likeBtn.onclick=()=>{
     body:`type=setLike&userId=${userId}&value=${liked ? 1 : 0}`
   })
   .then(()=>{
+  setTimeout(()=>{
+    isSendingLike = false // 🔥 buka lock
+    loadLike() // 🔥 sync ulang dari server
+  },1000)
   })
 }
 
@@ -941,6 +947,9 @@ document.addEventListener("click", function(e){
     commentInput.value = e.target.innerText + " "
     commentInput.focus()
   }
+})
+window.addEventListener("load", ()=>{
+  loadLike() // 🔥 paksa ambil data saat pertama buka
 })
 </script>
 
