@@ -652,10 +652,13 @@ function spawnLoveBubble(){
 }
 
 // ================= LOAD LIKE =================
+let isSendingLike = false
 let lastLikeTotal = 0
 let lastUserLiked = null
 
 function loadLike(){
+  if(isSendingLike) return // 🔥 biar tidak tabrakan saat klik
+
   fetch(API_URL+"?type=getLike&t="+Date.now())
   .then(res=>res.json())
   .then(data=>{
@@ -664,14 +667,10 @@ function loadLike(){
     const users = data.users || []
     const isLikedServer = users.includes(userId)
 
-    // 🔥 kalau TIDAK ADA PERUBAHAN → stop
-    if(total === lastLikeTotal && isLikedServer === lastUserLiked){
-      return
-    }
+    // 🔥 kalau jumlah sama → jangan update
+    if(total === lastLikeTotal) return
 
-    // 🔥 simpan state terakhir
     lastLikeTotal = total
-    lastUserLiked = isLikedServer
 
     // 🔥 update UI
     likeCount.innerText = total
@@ -686,14 +685,12 @@ function loadLike(){
 
   })
 }
-
-// 🔥 LANGSUNG LOAD (INI YANG BIKIN CEPAT)
 loadLike()
 setInterval(loadLike, 4000)
-
 // ================= LIKE =================
 likeBtn.onclick=()=>{
   liked = !liked
+  isSendingLike = true // 🔥 LOCK
 
   let current = Number(likeCount.innerText) || 0
 
@@ -710,7 +707,6 @@ likeBtn.onclick=()=>{
     likeCount.innerText = current - 1
   }
 
-  // 🔥 simpan state (ANTI KEDIP)
   lastLikeTotal = Number(likeCount.innerText)
   lastUserLiked = liked
 
@@ -720,6 +716,8 @@ likeBtn.onclick=()=>{
       "Content-Type":"application/x-www-form-urlencoded"
     },
     body:`type=setLike&userId=${userId}&value=${liked ? 1 : 0}`
+  })
+  .then(()=>{
   })
 }
 
