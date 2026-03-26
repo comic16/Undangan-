@@ -520,6 +520,12 @@ pointer-events:none;
 </div>
 
 <script>
+  let userId = localStorage.getItem("userId")
+
+if(!userId){
+  userId = "user_" + Math.random().toString(36).substr(2,9)
+  localStorage.setItem("userId", userId)
+}
   document.body.classList.add("no-scroll")
 const API_URL = "https://script.google.com/macros/s/AKfycbzHjy6GHPP4HfJr_fbO587eykL7bigXev2Jp4uVyzue0_nRt-OJAEr3DhH5QOd3pTruDA/exec"
 
@@ -637,11 +643,18 @@ function spawnLoveBubble(){
 
 // ================= LOAD LIKE =================
 function loadLike(){
-  fetch(API_URL+"?type=getLike")
+  fetch(API_URL+"?type=getLike&t="+Date.now())
   .then(res=>res.json())
   .then(data=>{
-    count = Number(data.like) || 0
-    likeCount.innerText = count
+    likeCount.innerText = data.total || 0
+
+    if(data.users && data.users.includes(userId)){
+      liked = true
+      likeBtn.classList.add("active")
+    }else{
+      liked = false
+      likeBtn.classList.remove("active")
+    }
   })
 }
 
@@ -650,33 +663,34 @@ loadLike()
 
 // ================= LIKE =================
 likeBtn.onclick=()=>{
-  if(count === null){
-    loadLike()
-    return
-  }
-
   liked = !liked
-  const value = liked ? 1 : -1
 
-  count += value
-  likeCount.innerText = count
+  let current = Number(likeCount.innerText) || 0
 
   if(liked){
     likeBtn.classList.add('active')
-    for(let i=0;i<20;i++){
-      setTimeout(()=>spawnLoveBubble(), i*50)
+    likeCount.innerText = current + 1
+
+    // ❤️ ANIMASI LOVE
+    for(let i=0;i<15;i++){
+      setTimeout(()=>spawnLoveBubble(), i*60)
     }
+
   }else{
     likeBtn.classList.remove('active')
+    likeCount.innerText = current - 1
   }
 
   fetch(API_URL,{
     method:"POST",
-    body:new URLSearchParams({
-      type:"like",
-      value:value
-    })
-  }).then(()=>loadLike())
+    headers:{
+      "Content-Type":"application/x-www-form-urlencoded"
+    },
+    body:`type=setLike&userId=${userId}&value=${liked ? 1 : 0}`
+  })
+
+  // 🔥 sync ulang biar akurat
+  setTimeout(loadLike, 1000)
 }
 
 // ================= KOMENTAR =================
@@ -744,8 +758,9 @@ function loadKomentar(){
 loadKomentar()
 
 setInterval(()=>{
+  loadLike()
   loadKomentar()
-},5000)
+},2000)
 
 // ================= UI =================
 function openComment(){
