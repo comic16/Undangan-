@@ -16,58 +16,56 @@
 
 <meta name="twitter:card" content="summary_large_image">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif}
-
-html {
-  scroll-snap-type: y mandatory;
-  scroll-behavior: auto;
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:sans-serif;
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  overflow-y: scroll;
-  overflow-x: hidden;
-  overscroll-behavior: none;
-  body.no-scroll {
-  overflow: hidden;
-}
+/* SCROLL */
+html{
+  scroll-snap-type:y mandatory;
 }
 
-.section {
-  width: 100%;
-  height: 100vh;
-  height: 100dvh;
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
-  will-change: transform;
-  background-size:cover;
-  background-position:center;
+body{
+  overflow-y:scroll;
+  overflow-x:hidden;
+  overscroll-behavior:none;
+}
+
+/* 🔥 FIX SCROLL LOCK */
+body.no-scroll,
+html.no-scroll{
+  overflow:hidden !important;
+  height:100vh;
+  touch-action:none;
+}
+
+/* SECTION */
+.section{
+  width:100%;
+  height:100svh;
+  scroll-snap-align:start;
+  scroll-snap-stop:always;
+
   display:flex;
   align-items:center;
   justify-content:center;
   flex-direction:column;
   text-align:center;
-  color:white;
 
-  /* 🔥 TAMBAH INI */
-  position: relative;
-
-  backface-visibility: hidden;
-  transform: translateZ(0);
+  background-size:cover;
+  background-position:center;
+  position:relative;
+  color:#fff;
 }
 
 /* MENU */
 .menu{
   position:fixed;
   right:10px;
-
-  /* 🔥 PINDAH KE BAWAH */
-  bottom:5%;   /* ubah ini kalau mau lebih turun/naik */
-
-  top:auto;      /* matikan posisi atas */
-  transform:none;
-
+  bottom:5%;
   display:flex;
   flex-direction:column;
   gap:15px;
@@ -93,60 +91,52 @@ body {
   to{transform:rotate(360deg)}
 }
 
+/* NAMA BOX */
 .namaBox{
   position:absolute;
-  bottom:30px; /* 🔥 lebih turun */
-  right:auto;
+  bottom:30px;
   left:20px;
-  transform:none;
 
   background:rgba(0,0,0,0.5);
-  padding:15px 20px;
-  border-radius:10px;
-  max-width:180px;
-  display:inline-block;
-}
-
-  /* 🔥 BALIKIN KOTAK */
-  background:rgba(0,0,0,0.5);
-
   padding:15px 20px;
   border-radius:10px;
   max-width:300px;
-  width: 80%;
-
-  /* 🔥 Biar selalu kelihatan */
-  display:inline-block;
+  width:80%;
 }
 
-.namaBox h3{
-  font-size:12px; /* kecil */
+.namaBox h3{font-size:12px}
+.namaBox h1{font-size:16px}
+
+/* COMMENT BOX */
+#commentBox{
+  position:fixed;
+  bottom:-100%;
+  left:0;
+  width:100%;
+  height:70%;
+  background:#fff;
+  color:#000;
+  border-radius:20px 20px 0 0;
+  transition:transform 0.35s, height 0.25s;
+  z-index:999;
+  display:flex;
+  flex-direction:column;
+  max-height:100vh;
+  overflow:hidden;
 }
 
-.namaBox h1{
-  font-size:16px; /* nama tamu */
-  line-height:1.2;
-}
+/* LOVE FLOAT */
 .loveBubble{
   position:fixed;
   pointer-events:none;
   z-index:1000;
-  opacity:0;
   animation:loveFloat 2.5s ease-out forwards;
 }
 
 @keyframes loveFloat{
-  0%{
-    transform:translate(0,0) scale(0.5);
-    opacity:0;
-  }
-  20%{
-    opacity:1;
-  }
-  100%{
-    transform:translate(var(--x), var(--y)) scale(1.3);
-    opacity:0;
-  }
+  0%{transform:scale(0.5);opacity:0;}
+  20%{opacity:1;}
+  100%{transform:translate(var(--x),var(--y)) scale(1.3);opacity:0;}
 }
 .logoBtn{
   width:100%;
@@ -245,9 +235,13 @@ body {
   background:#ddd;
   transform:scale(0.95);
 }
+#list{
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
 </style>
 </head>
-
+<div id="overlayBG"></div>
 <body>
   
   <div id="loveEffect" style="
@@ -530,6 +524,34 @@ pointer-events:none;
 </div>
 
 <script>
+  let scrollY = 0
+
+function freezePage(){
+  scrollY = window.scrollY
+
+  document.body.style.position = "fixed"
+  document.body.style.top = `-${scrollY}px`
+  document.body.style.left = "0"
+  document.body.style.right = "0"
+}
+
+function unfreezePage(){
+  document.body.style.position = ""
+  document.body.style.top = ""
+  document.body.style.left = ""
+  document.body.style.right = ""
+
+  window.scrollTo(0, scrollY)
+}
+
+function enableScroll(){
+  document.body.style.position = ""
+  document.body.style.top = ""
+  document.body.style.left = ""
+  document.body.style.right = ""
+
+  window.scrollTo(0, scrollY)
+}
   let userId = localStorage.getItem("userId")
 
 if(!userId){
@@ -795,14 +817,13 @@ setInterval(loadKomentar, 2000)
 // ================= UI =================
 function openComment(){
   commentBox.style.bottom="0"
-
-  // 🔥 tambah history (biar bisa back)
+  disableScroll()
   history.pushState({comment:true}, "")
 }
 function closeComment(){
   commentBox.style.bottom="-100%"
+  enableScroll()
 
-  // 🔥 balik history (opsional biar rapi)
   if(history.state && history.state.comment){
     history.back()
   }
@@ -871,12 +892,15 @@ const total=sections.length
 let isJumping=false
 
 window.addEventListener('scroll',()=>{
-  if(isJumping)return
-  const y=Math.round(window.scrollY)
-  const h=window.innerHeight
+  if(isJumping) return
 
-  if(y>=(total-1)*h-2)jumpTo(h)
-  if(y<=2)jumpTo((total-2)*h)
+  // 🔥 TAMBAH INI
+  if(isKeyboardOpen) return
+
+  // 🔥 TAMBAH INI JUGA (popup aktif)
+  if(document.body.style.position === "fixed") return
+  const y=Math.round(window.scrollY)
+  
 })
 
 function jumpTo(pos){
@@ -951,6 +975,68 @@ document.addEventListener("click", function(e){
 window.addEventListener("load", ()=>{
   loadLike() // 🔥 paksa ambil data saat pertama buka
 })
+window.addEventListener("popstate", function () {
+  if(commentBox.style.bottom === "0px"){
+    closeComment()
+    enableScroll()
+  }
+})
+let lastHeight = window.innerHeight
+
+window.addEventListener("resize", ()=>{
+  const currentHeight = window.innerHeight
+
+  if(currentHeight < lastHeight - 100){
+    // 🔥 KEYBOARD BUKA
+    isKeyboardOpen = true
+
+    disableSnap()     // ❗ penting
+    freezePage()      // ❗ penting
+// 🔥 UBAH JADI 80%
+    commentBox.style.height = (currentHeight * 0.8) + "px"
+
+  }else{
+    // 🔥 KEYBOARD TUTUP
+    isKeyboardOpen = false
+
+    enableSnap()      // ❗ balikin
+    unfreezePage()    // ❗ balikin
+
+    commentBox.style.height = "70%"
+  }
+
+  lastHeight = currentHeight
+})
+function disableSnap(){
+  document.documentElement.style.scrollSnapType = "none"
+}
+
+function enableSnap(){
+  document.documentElement.style.scrollSnapType = "y mandatory"
+}
+function onKeyboardOpen(viewHeight){
+  // 🔥 naikkan comment box sampai mentok
+  commentBox.style.height = viewHeight + "px"
+}
+
+function onKeyboardClose(){
+  // 🔥 balik normal
+  commentBox.style.height = "75%"
+}
+document.addEventListener("focusin", (e)=>{
+  if(e.target.tagName === "INPUT"){
+    isKeyboardOpen = true
+  }
+})
+
+document.addEventListener("focusout", (e)=>{
+  if(e.target.tagName === "INPUT"){
+    isKeyboardOpen = false
+  }
+})
+list.addEventListener("touchmove", function(e){
+  e.stopPropagation()
+}, { passive:false })
 </script>
 
 </body>
